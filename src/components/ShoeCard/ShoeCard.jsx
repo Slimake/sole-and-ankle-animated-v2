@@ -1,7 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
-import { WEIGHTS } from '../../constants';
+import { COLORS, WEIGHTS } from '../../constants';
 import { formatPrice, pluralize, isNewShoe } from '../../utils';
 import Spacer from '../Spacer';
 
@@ -35,7 +35,9 @@ const ShoeCard = ({
     <Link href={`/shoe/${slug}`}>
       <Wrapper>
         <ImageWrapper>
-          <Image alt="" src={imageSrc} />
+          <ImageOverflow>
+            <Image alt="" src={imageSrc} />
+          </ImageOverflow>
           {variant === 'on-sale' && <SaleFlag>Sale</SaleFlag>}
           {variant === 'new-release' && (
             <NewFlag>Just released!</NewFlag>
@@ -79,9 +81,32 @@ const ImageWrapper = styled.div`
   position: relative;
 `;
 
+const ImageOverflow = styled.div`
+  overflow: hidden;
+  border-radius: 16px 16px 4px 4px;
+	aspect-ratio: 1/0.69445;
+`;
+
 const Image = styled.img`
   width: 100%;
-  border-radius: 16px 16px 4px 4px;
+  /* border-radius: 16px 16px 4px 4px; */
+  filter: grayscale(0);
+  will-change: transform;
+  
+  ${Link}:hover &, ${Link}:focus & {
+    transform: scale(1.1);
+    filter: grayscale(1);
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    & {
+      transition: filter 0.4s ease, transform 350ms ease-out;
+    }
+    
+    ${Link}:hover &, ${Link}:focus & {
+      transition: transform 150ms ease-in;
+    }
+  }
 `;
 
 const Row = styled.div`
@@ -109,6 +134,17 @@ const SalePrice = styled.span`
   color: var(--color-primary);
 `;
 
+const PulseFlag = keyframes`
+  0% {
+    /* transform: scale(1); */
+    box-shadow: 0 0 0 0 hsla(220deg 3% 20% / 0.4);
+  }
+  100% {
+    /* transform: scale(1.05); */
+    box-shadow: 0 0 0 10px hsla(220deg 3% 20% / 0)
+  }
+`;
+
 const Flag = styled.div`
   position: absolute;
   top: 12px;
@@ -121,6 +157,13 @@ const Flag = styled.div`
   font-weight: ${WEIGHTS.bold};
   color: var(--color-white);
   border-radius: 2px;
+
+  @media (prefers-reduced-motion: no-preference) {
+    & {
+      animation: ${PulseFlag} 1000ms alternate infinite ease-in-out;
+    }
+  }
+
 `;
 
 const SaleFlag = styled(Flag)`
